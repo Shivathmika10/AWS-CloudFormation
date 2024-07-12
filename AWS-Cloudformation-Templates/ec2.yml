@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata: 
+  License: Apache-2.0
+Description: 'AWS CloudFormation Template for EC2 Instance in Default VPC'
+Parameters:
+  KeyName:
+    Description: Name of an existing EC2 KeyPair to enable SSH access to the instance
+    Type: AWS::EC2::KeyPair::KeyName
+    Default: key-test
+    ConstraintDescription: Must be the name of an existing EC2 KeyPair.
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: t2.micro
+    AllowedValues: [t2.micro, t2.small, t2.medium]
+    ConstraintDescription: Must be a valid EC2 t2 instance type.
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref 'InstanceType'
+      KeyName: !Ref 'KeyName'
+      ImageId: ami-0e8a34246278c21e4
+      SecurityGroupIds: 
+        - sg-0763018d8c40757cb     
+      BlockDeviceMappings:
+        - DeviceName: "/dev/sda1"
+          Ebs:
+            VolumeSize: 8
+            VolumeType: "gp2"
+            DeleteOnTermination: true
+      Tags:
+        - Key: Name
+          Value: OrganizationEC2Instance
+        - Key: Environment
+          Value: Production
+
+Outputs:
+  InstanceId:
+    Description: The Instance ID
+    Value: !Ref EC2Instance
+  PublicIP:
+    Description: The Public IP address of the instance
+    Value: !GetAtt EC2Instance.PublicIp 
+
